@@ -1,13 +1,22 @@
 import spacy
-from app.config import TECH_SKILLS_DB
 
 nlp = spacy.load("en_core_web_sm")
 
+TECH_SKILLS_DB = {
+    "python", "java", "c++", "c", "react", "node.js", "express", "mongodb",
+    "sql", "fastapi", "docker", "git", "html", "css", "javascript", "typescript",
+    "scikit-learn", "pytorch", "tensorflow", "rest api", "figma"
+}
+
 def analyze_skills_and_gaps(resume_text: str, jd_text: str):
-    resume_skills = {word for word in TECH_SKILLS_DB if word in resume_text.lower()}
-    jd_skills = {word for word in TECH_SKILLS_DB if word in jd_text.lower()}
+    resume_doc = nlp(resume_text.lower())
+    jd_doc = nlp(jd_text.lower())
 
-    matched_skills = list(resume_skills.intersection(jd_skills))
-    missing_skills = list(jd_skills - resume_skills)
+    resume_tokens = {token.text for token in resume_doc}
+    jd_tokens = {token.text for token in jd_doc}
 
-    return matched_skills, missing_skills
+    # Match skills against tech database
+    matched = list(TECH_SKILLS_DB.intersection(resume_tokens).intersection(jd_tokens))
+    missing = list(TECH_SKILLS_DB.intersection(jd_tokens) - resume_tokens)
+
+    return matched, missing
