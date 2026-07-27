@@ -2,8 +2,17 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from app.services.pdf_service import extract_text_from_pdf
 from app.services.match_service import calculate_semantic_similarity
 from app.services.nlp_service import analyze_skills_and_gaps
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Placement Tracker AI Engine", version="2.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/api/v1/screen-resume")
 async def screen_resume(

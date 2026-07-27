@@ -1,22 +1,46 @@
-import spacy
-
-nlp = spacy.load("en_core_web_sm")
-
 TECH_SKILLS_DB = {
-    "python", "java", "c++", "c", "react", "node.js", "express", "mongodb",
-    "sql", "fastapi", "docker", "git", "html", "css", "javascript", "typescript",
-    "scikit-learn", "pytorch", "tensorflow", "rest api", "figma"
+    "python",
+    "java",
+    "c++",
+    "c",
+    "react",
+    "node.js",
+    "express",
+    "mongodb",
+    "sql",
+    "fastapi",
+    "docker",
+    "git",
+    "html",
+    "css",
+    "javascript",
+    "typescript",
+    "scikit-learn",
+    "pytorch",
+    "tensorflow",
+    "rest api",
+    "figma"
 }
 
+
 def analyze_skills_and_gaps(resume_text: str, jd_text: str):
-    resume_doc = nlp(resume_text.lower())
-    jd_doc = nlp(jd_text.lower())
+    resume_text = resume_text.lower()
+    jd_text = jd_text.lower()
 
-    resume_tokens = {token.text for token in resume_doc}
-    jd_tokens = {token.text for token in jd_doc}
+    matched_skills = []
+    missing_skills = []
 
-    # Match skills against tech database
-    matched = list(TECH_SKILLS_DB.intersection(resume_tokens).intersection(jd_tokens))
-    missing = list(TECH_SKILLS_DB.intersection(jd_tokens) - resume_tokens)
+    for skill in TECH_SKILLS_DB:
 
-    return matched, missing
+        # Skill is required by the job description
+        if skill in jd_text:
+
+            # Skill exists in both JD and resume
+            if skill in resume_text:
+                matched_skills.append(skill)
+
+            # Skill is required but absent from resume
+            else:
+                missing_skills.append(skill)
+
+    return matched_skills, missing_skills

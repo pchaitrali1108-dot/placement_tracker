@@ -19,4 +19,19 @@ api.interceptors.response.use(
   }
 );
 
+export const screenResume = async (file, jobDescription) => {
+  const formData = new FormData();
+
+  formData.append('file', file);
+  formData.append('job_description', jobDescription);
+
+  const response = await axios.post(
+    'http://localhost:8000/api/v1/screen-resume',
+    formData
+  );
+
+  return response.data;
+};
+
+
 export default api;
