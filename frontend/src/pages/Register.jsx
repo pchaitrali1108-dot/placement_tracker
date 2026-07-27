@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { registerUser } from "../services/api";
 
 function Register() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function Register() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,7 +24,7 @@ function Register() {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { name, email, password, confirmPassword } = formData;
@@ -39,19 +41,34 @@ function Register() {
       return;
     }
 
-    // Save registered user temporarily
-    localStorage.setItem(
-      "registeredUser",
-      JSON.stringify({
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await registerUser({
         name,
         email,
         password,
-      })
-    );
+      });
 
-    // IMPORTANT:
-    // After registration → GO TO LOGIN
-    navigate("/login");
+      if (response.success) {
+        if (response.token) {
+          localStorage.setItem("token", response.token);
+        }
+        if (response.data) {
+          localStorage.setItem("user", JSON.stringify(response.data));
+        }
+        navigate("/login");
+      }
+    } catch (err) {
+      const backendError =
+        err.response?.data?.message ||
+        err.response?.data?.error?.message ||
+        "Registration failed. Please try again.";
+      setError(backendError);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -127,8 +144,9 @@ function Register() {
           <button
             type="submit"
             className="auth-button"
+            disabled={loading}
           >
-            Create Account →
+            {loading ? "Creating Account..." : "Create Account →"}
           </button>
 
         </form>

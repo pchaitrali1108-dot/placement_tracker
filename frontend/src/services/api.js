@@ -10,6 +10,18 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// Request interceptor to attach Authorization header if token exists
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // Response interceptor for generic error handling
 api.interceptors.response.use(
   (response) => response,
@@ -19,6 +31,23 @@ api.interceptors.response.use(
   }
 );
 
+// User Authentication API Services
+export const registerUser = async (userData) => {
+  const response = await api.post('/users', userData);
+  return response.data;
+};
+
+export const loginUser = async (credentials) => {
+  const response = await api.post('/users/login', credentials);
+  return response.data;
+};
+
+export const fetchCurrentUser = async () => {
+  const response = await api.get('/users/me');
+  return response.data;
+};
+
+// AI Resume Screening API Call
 export const screenResume = async (file, jobDescription) => {
   const formData = new FormData();
 
@@ -32,6 +61,5 @@ export const screenResume = async (file, jobDescription) => {
 
   return response.data;
 };
-
 
 export default api;
